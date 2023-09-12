@@ -1,0 +1,1 @@
+# dotnet7-azure-function-isolated-polly-policywrap
