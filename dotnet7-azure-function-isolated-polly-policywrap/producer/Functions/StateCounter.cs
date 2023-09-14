@@ -26,14 +26,10 @@ namespace producer.Functions
         {
             _logger.LogInformation("Request to increment counter.");
 
-            int counter;
-
             try
             {
-                var isFailureEnabled =
-                    _configuration.GetValue<bool>(Constants.FailureEnabled); // variable to control failure injection
-                var currentCounter =
-                    _tableStorageHelper.GetCounter(Constants.Counter, Constants.PartitionKey, Constants.Row);
+                var isFailureEnabled = _configuration.GetValue<bool>(Constants.FailureEnabled); // variable to control failure injection
+                var currentCounter = _tableStorageHelper.GetCounter(Constants.Counter, Constants.PartitionKey, Constants.Row);
 
                 if (isFailureEnabled && currentCounter % 3 == 0)
                 {
@@ -43,8 +39,17 @@ namespace producer.Functions
                     throw new Exception(errorMessage);
                 }
 
-                counter = _tableStorageHelper.IncrementCounter(Constants.Counter, Constants.PartitionKey,
+                var counter = _tableStorageHelper.IncrementCounter(Constants.Counter, Constants.PartitionKey,
                     Constants.Row);
+
+                var response = req.CreateResponse(HttpStatusCode.OK);
+                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+
+                var message = $"Current counter: {counter}";
+                _logger.LogInformation(message);
+                response.WriteString(message);
+
+                return response;
             }
             catch (Exception ex)
             {
@@ -56,15 +61,6 @@ namespace producer.Functions
                 exceptionResponse.WriteString(ex.Message);
                 return exceptionResponse;
             }
-
-            var response = req.CreateResponse(HttpStatusCode.OK);
-            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-
-            var message = $"Current counter: {counter}";
-            _logger.LogInformation(message);
-            response.WriteString(message);
-
-            return response;
         }
     }
 }
