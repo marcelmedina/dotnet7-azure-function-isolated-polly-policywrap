@@ -31,7 +31,7 @@ var host = new HostBuilder()
 
         var retryPolicy = Policy
             .HandleResult<HttpResponseMessage>(response => !response.IsSuccessStatusCode)
-            .WaitAndRetryAsync(3,
+            .WaitAndRetryAsync(1,
                 _ => TimeSpan.FromMilliseconds(1000),
                 onRetry: (message, timeSpan) =>
                 {
@@ -45,8 +45,8 @@ var host = new HostBuilder()
 
         var circuitBreakPolicy = Policy
             .HandleResult<HttpResponseMessage>(response => !response.IsSuccessStatusCode)
-            .CircuitBreakerAsync(3, 
-                TimeSpan.FromSeconds(10),
+            .CircuitBreakerAsync(4,
+                TimeSpan.FromSeconds(15),
                 onBreak: (_, _) =>
                 {
                     Console.Out.WriteLine("*****Open*****");
@@ -60,8 +60,8 @@ var host = new HostBuilder()
                     Console.Out.WriteLine("*****Half Open*****");
                 });
 
-        //var policyWrap = Policy.WrapAsync<HttpResponseMessage>(fallbackPolicy, retryPolicy, circuitBreakPolicy);
-        var policyWrap = Policy.WrapAsync<HttpResponseMessage>(fallbackPolicy, retryPolicy);
+        var policyWrap = Policy.WrapAsync<HttpResponseMessage>(fallbackPolicy, retryPolicy, circuitBreakPolicy);
+        //var policyWrap = Policy.WrapAsync<HttpResponseMessage>(fallbackPolicy, retryPolicy);
 
         services.AddHttpClient<StateCounterHttpClient>()
             .AddPolicyHandler(policyWrap);

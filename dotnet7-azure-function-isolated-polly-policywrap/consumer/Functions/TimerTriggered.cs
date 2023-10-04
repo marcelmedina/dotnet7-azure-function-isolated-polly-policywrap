@@ -17,7 +17,7 @@ namespace consumer.Functions
         }
 
         [Function("TimerTriggered")]
-        public async Task Run([TimerTrigger("*/15 * * * * *")] FunctionContext context)
+        public async Task Run([TimerTrigger("*/10 * * * * *")] FunctionContext context)
         {
             var logger = context.GetLogger<TimerTriggered>();
 
