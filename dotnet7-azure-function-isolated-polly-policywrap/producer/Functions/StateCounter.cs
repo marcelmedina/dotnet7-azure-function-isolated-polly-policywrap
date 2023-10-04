@@ -34,8 +34,6 @@ namespace producer.Functions
                 if (isFailureEnabled && currentCounter % 3 == 0)
                 {
                     const string errorMessage = "Counter is divisible by 3, throwing exception.";
-
-                    _logger.LogError(errorMessage);
                     throw new Exception(errorMessage);
                 }
 
